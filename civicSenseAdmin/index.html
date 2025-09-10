@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CivicSense Admin Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">CS</div>
+        <div class="brand-text">
+          <h1>CivicSense</h1>
+          <span>Admin Dashboard</span>
+        </div>
+      </div>
+      <div class="top-actions">
+        <input
+          id="searchInput"
+          type="search"
+          placeholder="Search reports, addresses, IDs…"
+        />
+        <button id="reloadBtn" class="btn" title="Reload from backend">
+          Reload
+        </button>
+        <button id="newReportBtn" class="btn primary" title="Create report">
+          + New
+        </button>
+        <div class="avatar" title="Admin">A</div>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="filters">
+        <div class="filter-row">
+          <div class="filter-group">
+            <label for="statusFilter">Status</label>
+            <select id="statusFilter">
+              <option value="all">All</option>
+              <option value="new">New</option>
+              <option value="acknowledged">Acknowledged</option>
+              <option value="in_progress">In Progress</option>
+              <option value="resolved">Resolved</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="priorityFilter">Priority</label>
+            <select id="priorityFilter">
+              <option value="all">All</option>
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="critical">Critical</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="categoryFilter">Category</label>
+            <select id="categoryFilter">
+              <option value="all">All</option>
+              <option value="pothole">Pothole</option>
+              <option value="lighting">Streetlight</option>
+              <option value="sanitation">Sanitation</option>
+              <option value="graffiti">Graffiti</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="deptFilter">Department</label>
+            <select id="deptFilter">
+              <option value="all">All</option>
+              <option value="public_works">Public Works</option>
+              <option value="sanitation">Sanitation</option>
+              <option value="transport">Transport</option>
+              <option value="parks">Parks</option>
+            </select>
+          </div>
+          <div class="filter-actions">
+            <button id="clearFiltersBtn" class="btn ghost">Clear</button>
+            <button id="exportBtn" class="btn">Export CSV</button>
+          </div>
+        </div>
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-label">Open</div>
+            <div id="statOpen" class="stat-value">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">In Progress</div>
+            <div id="statInProgress" class="stat-value">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Resolved (7d)</div>
+            <div id="statResolved" class="stat-value">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Avg. Response</div>
+            <div id="statAvgResponse" class="stat-value">—</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="content">
+        <div class="left">
+          <div class="table-header">
+            <div class="title">Reports</div>
+            <div class="segmented">
+              <button class="seg active" data-range="all">All</button>
+              <button class="seg" data-range="today">Today</button>
+              <button class="seg" data-range="week">This Week</button>
+              <button class="seg" data-range="month">This Month</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table id="reportsTable">
+              <thead>
+                <tr>
+                  <th data-sort="id">ID</th>
+                  <th data-sort="createdAt">Created</th>
+                  <th data-sort="category">Category</th>
+                  <th data-sort="reporter">Reporter</th>
+                  <th>Description</th>
+                  <th data-sort="priority">Priority</th>
+                  <th data-sort="status">Status</th>
+                  <th data-sort="department">Department</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="table-footer">
+            <div id="resultsCount">0 results</div>
+            <div class="pagination">
+              <button id="prevPage" class="btn ghost" disabled>Prev</button>
+              <span id="pageInfo">1 / 1</span>
+              <button id="nextPage" class="btn ghost" disabled>Next</button>
+            </div>
+          </div>
+        </div>
+
+        <aside class="right" id="detailsPanel">
+          <div class="details-empty" id="detailsEmpty">
+            <div class="placeholder">Select a report to see details</div>
+          </div>
+          <div class="details" id="details" hidden>
+            <div class="details-header">
+              <div>
+                <div id="detailId" class="detail-id">#</div>
+                <div id="detailMeta" class="detail-meta"></div>
+              </div>
+              <div class="details-actions">
+                <select id="detailStatus"></select>
+                <select id="detailDepartment"></select>
+                <button id="saveDetailBtn" class="btn primary">Save</button>
+              </div>
+            </div>
+            <div class="map" id="mapBox">
+              <div class="map-placeholder">Map preview</div>
+            </div>
+            <div class="detail-body">
+              <div class="detail-section">
+                <div class="section-title">Description</div>
+                <div id="detailDescription" class="section-content"></div>
+              </div>
+              <div class="detail-section">
+                <div class="section-title">Reporter</div>
+                <div class="section-content">
+                  <div class="kv">
+                    <div class="k">Name</div>
+                    <div id="detailReporterName" class="v"></div>
+                  </div>
+                  <div class="kv">
+                    <div class="k">Email</div>
+                    <div id="detailReporterEmail" class="v"></div>
+                  </div>
+                  <div class="kv">
+                    <div class="k">Phone</div>
+                    <div id="detailReporterPhone" class="v"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="detail-section">
+                <div class="section-title">Attachments</div>
+                <div id="detailAttachments" class="attachments"></div>
+              </div>
+              <div class="detail-section">
+                <div class="section-title">Activity</div>
+                <div id="detailActivity" class="activity"></div>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <footer class="footer">
+      © <span id="year"></span> CivicSense • For internal municipal use only •
+      API: <span id="apiBaseText"></span>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>

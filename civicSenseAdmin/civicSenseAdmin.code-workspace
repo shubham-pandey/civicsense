@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../civice_sense"
+		},
+		{
+			"path": "../../Downloads/civic-reporter 2"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "civicSenseAdmin"
+	}
+}
