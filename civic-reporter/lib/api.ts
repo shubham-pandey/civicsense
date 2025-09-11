@@ -46,8 +46,14 @@ export async function listServerReports(): Promise<ServerReport[]> {
 
 export async function getServerReport(id: string): Promise<any> {
   const base = getApiBase();
+  
+  // Validate ID
+  if (!id || id === 'null' || id === 'undefined') {
+    throw new Error('Invalid report ID');
+  }
+  
   const res = await fetch(`${base}/api/reports/${id}`);
-  if (!res.ok) throw new Error('get_failed');
+  if (!res.ok) throw new Error(`get_failed: ${res.status} ${res.statusText}`);
   const r = await res.json();
   r.status = normalizeStatus(r.status);
   return r;

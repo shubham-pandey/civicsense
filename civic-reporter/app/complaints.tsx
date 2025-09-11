@@ -71,13 +71,13 @@ export default function ComplaintsScreen() {
       </View>
       <FlatList
         data={reports}
-        keyExtractor={(item) => String(item.id)}
+        keyExtractor={(item, index) => item.id ? String(item.id) : `temp-${index}-${Date.now()}`}
         renderItem={({ item }) => (
           <Card>
             <View style={{ flexDirection: 'row', gap: 12 }}>
-              {item.imageUri ? (
+              {item.imageUrl ? (
                 <Image 
-                  source={{ uri: item.imageUri }} 
+                  source={{ uri: item.imageUrl }} 
                   style={{ width: 64, height: 64, borderRadius: 8 }} 
                   resizeMode="cover"
                   onError={(e) => console.log('Image load error:', e.nativeEvent.error)}
@@ -91,14 +91,24 @@ export default function ComplaintsScreen() {
                 <Text style={{ fontWeight: '700', color: '#0F172A' }}>{item.description || 'No description'}</Text>
                 <View style={{ height: 6 }} />
                 <Badge label={statusLabel(item.status)} tone={item.status === 'resolved' ? 'success' : item.status === 'in_progress' ? 'warning' : 'default'} />
-                {item.location && (
+                {item.location && item.location.lat && item.location.lng && (
                   <Text style={{ color: '#475569', marginTop: 6 }}>Lat {item.location.lat.toFixed(4)}, Lng {item.location.lng.toFixed(4)}</Text>
                 )}
                 <Text style={{ color: '#64748B', marginTop: 4 }}>{new Date(item.createdAt).toLocaleString()}</Text>
               </View>
             </View>
             <View style={{ height: 8 }} />
-            <Button title="Expand" onPress={() => router.push(`/report/${item.id}`)} />
+            <Button 
+              title="Expand" 
+              onPress={() => {
+                if (item.id) {
+                  router.push(`/report/${item.id}`);
+                } else {
+                  console.log('Cannot expand report without ID');
+                }
+              }} 
+              disabled={!item.id}
+            />
           </Card>
         )}
         ListEmptyComponent={

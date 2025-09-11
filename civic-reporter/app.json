@@ -27,13 +27,16 @@
       "edgeToEdgeEnabled": true,
       "permissions": [
         "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION"
       ],
       "config": {
         "googleMaps": {
           "apiKey": "YOUR_ANDROID_GOOGLE_MAPS_API_KEY"
         }
-      }
+      },
+      "package": "com.vivek3481.civicreporter"
     },
     "web": {
       "bundler": "metro",

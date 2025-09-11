@@ -14,7 +14,7 @@ export async function runSyncOnce() {
     // Convert server reports to the format expected by the UI
     const formattedReports = serverReports.map(report => ({
       id: report.id,
-      imageUri: report.imageUrl || undefined,
+      imageUrl: report.imageUrl || undefined,
       description: report.description || undefined,
       category: report.category || undefined,
       priority: report.priority as any || undefined,

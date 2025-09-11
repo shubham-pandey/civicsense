@@ -6,7 +6,7 @@ export type ReportStatus = 'submitted' | 'acknowledged' | 'in_progress' | 'resol
 // Server-only reports - no local storage
 export interface ServerOnlyReport {
   id: string | number;
-  imageUri?: string;
+  imageUrl?: string;
   description?: string;
   category?: string;
   priority?: 'low' | 'medium' | 'high';
